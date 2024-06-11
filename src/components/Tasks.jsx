@@ -1,103 +1,155 @@
-//Imports
-import React, {useState} from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-
-import moment from 'moment';
-import 'moment/locale/pt-br'
+import React from "react";
+import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
+import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
 
 import commonStyles from "../commonStyles";
-import Icon from 'react-native-vector-icons/FontAwesome'
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+import moment from "moment";
+import 'moment/locale/pt-br'
 
 export default props => {
-const [concluida, setConcluida] = useState(props.concluidaEm != null);
 
-toggleConcluida = () => {
-        setConcluida(!concluida);
-};
-const tarefaConcluidaStyle = concluida ? { textDecorationLine: 'line-through', color:"blue" } : {};
+    const tarefaConcluidaNao = props.concluidaEm != null ?
+        { textDecorationLine: 'line-through' } : {}
 
-const icone = concluida ? <Icon name="check" size={20} color='#FFF'/> : null;
+    const date = props.concluidaEm ? props.concluidaEm : props.dataEstimada
 
+    const dateFormat = moment(date).locale('pt-br')
+        .format('ddd, D [de] MMMM')
 
-// const tarefaConcluidaNao =props.concluidaEm !=null ?
-// {textDecorationLine: 'line-through' } : {}
-
-const date = props.concluidaEm ? props.concluidaEm : props.dataEstimada
-const dateTime = moment(date).locale('pt-br').format('ddd, D [de] MMMM'); 
-
-        //Inicio Código
-        return (
-                <TouchableOpacity onPress={toggleConcluida}>
-                <View style={style.container}>
-                        <View style={style.checkContainer}>
-                                {getCheckView(props.concluidaEm)}
-                               
-                        </View>
-
-                        <View>
-                                <Text style={[style.descricao, tarefaConcluidaStyle]}>{props.descricao}</Text>
-                                <Text style={style.date}>{dateTime}</Text>
-                        </View>
-                </View>
-</TouchableOpacity>
+    const getRightContent = () => {
+        return(
+            <TouchableOpacity style={style.right}
+            onPress={() => props.onDelete && props.onDelete(props.id)}
+            >
+                <Icon name="trash" size={30} color='#FFF'/>
+            </TouchableOpacity>
         )
-};
+    }
 
-function getCheckView(concluidaEm) {
-        if (concluidaEm != null) {
-                return (
-                        <View style={style.dataEstimada}>
-                                <Icon name="check" size={20} color='#000'/>
+    const getLeftContent = () => {
+        return(
+            <TouchableOpacity style={style.left}
+            onPress={() => props.onDelete && props.onDelete(props.id)}
+            >
+                <Icon name="trash" size={30} color='#FFF'/>
+            </TouchableOpacity>
+        )
+    }
+
+    return (
+        <GestureHandlerRootView>
+            <Swipeable
+                renderRightActions={getRightContent}
+                renderLeftActions={getLeftContent}
+                onSwipeableLeftClose={() => props.onDelete && props.onDelete(props.id)}
+            >
+                <View style={style.container}>
+                    <TouchableWithoutFeedback
+                        onPress={() => props.toggleTask(props.id)}
+                    >
+                        <View style={style.checkContainer}>
+                            {getCheckView(props.concluidaEm)}
                         </View>
-                )
-        } else {
-                return(
-                        <View style={style.pendente}>
-                                
-                        </View>
-                )
-        }
+                    </TouchableWithoutFeedback>
+                    <View>
+                        <Text style={[style.descricao, tarefaConcluidaNao]}>{props.descricao}</Text>
+                        <Text style={style.date}>{dateFormat}</Text>
+                    </View>
+                </View>
+            </Swipeable>
+        </GestureHandlerRootView>
+
+    )
 }
 
-//Styles
-const style = StyleSheet.create({
+function getCheckView(concluidaEm) {
+    if (concluidaEm != null) {
+        return (
+            <View style={style.dataEstimada}>
+                <Icon name='check' size={20} color='#FFF' />
+            </View>
+        )
+    } else {
+        return (
+            <View style={style.pendente}>
 
-        container: {
-            flexDirection:'row',
-            borderColor:'#2c2c2c',
-            borderBottomWidth:1,
-            alignItems:'center',
-            paddingVertical:10
-        },
-        dataEstimada:{
-                height:25,
-                width:25,
-                borderRadius:13,
-                borderWidth:1,
-                backgroundColor:'#4D7031',
-                alignItems:'center',
-                justifyContent:'center',
-        },
-        pendente:{
-                height:25,
-                width:25,
-                borderRadius:13,
-                borderWidth:1,
-                borderColor:'#555'
-        },
-        descricao:{
-                color: commonStyles.colors.mainText,
-                fontSize:15,
-        },
-        date: {
-                fontFamily: commonStyles.fontFamily,
-                color: commonStyles.colors.subText,
-                fontSize:12,
-        },
-        checkContainer:{
-                width:'20%',
-                alignItems:'center',
-                justifyContent:'center',
-        }
-        
-    });
+            </View>
+        )
+    }
+}
+
+const style = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        borderColor: '#2c2c2c',
+        borderBottomWidth: 1,
+        alignItems: 'center',
+        paddingVertical: 10,
+        backgroundColor: '#FFF'
+    },
+
+    checkContainer: {
+        width: '20%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    pendente: {
+        height: 25,
+        width: 25,
+        borderRadius: 13,
+        borderWidth: 1,
+        borderColor: '#555',
+    },
+
+    dataEstimada: {
+        height: 25,
+        width: 25,
+        borderRadius: 13,
+        borderWidth: 1,
+        backgroundColor: '#4D7031',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    descricao: {
+        fontFamily: commonStyles.fontFamily,
+        color: commonStyles.colors.subText,
+        fontSize: 15,
+    },
+
+    date: {
+        fontFamily: commonStyles.fontFamily,
+        color: commonStyles.colors.subText,
+        fontSize: 12,
+    },
+
+    right:{
+        paddingHorizontal: 20,
+        backgroundColor: 'red',
+        justifyContent:'flex-end',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+    left:{
+        flex:1,
+        backgroundColor: 'red',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+   delText:{
+        font: commonStyles.fontFamily,
+        color: '#FFF',
+        fontSize: 20,
+        margin: 10,
+   },
+
+   delIcon: {
+    marginLeft: 10,
+   }
+
+})

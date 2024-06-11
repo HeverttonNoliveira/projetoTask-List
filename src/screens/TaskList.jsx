@@ -40,6 +40,11 @@ export default class TaskList extends Component {
         this.setState({ showDoneTasks: !this.state.showDoneTasks }, this.filterTasks)
     }
 
+    deleteTesk = id => {
+        const tasks = this.state.tasks.filter(task => task.id !== id)
+        this.setState({ tasks }, this.filterTasks)
+    }
+
     filterTasks = () => {
         let visibleTasks = null
         if (this.state.showDoneTasks) {
@@ -109,7 +114,9 @@ export default class TaskList extends Component {
                     <FlatList
                         data={this.state.visibleTasks}
                         keyExtractor={item => `${item.id}`}
-                        renderItem={({ item }) => <Task {...item} toggleTask={this.toggleTask} />}
+                        renderItem={({ item }) => <Task {...item} toggleTask={this.toggleTask} 
+                            onDelete={this.deleteTesk}
+                        />}
                     />
                 </View>
                 <TouchableOpacity
@@ -128,16 +135,20 @@ const style = StyleSheet.create({
     container: {
         flex: 1,
     },
+
     background: {
         flex: 3,
     },
+
     taskList: {
         flex: 7,
     },
+
     titleBar: {
         flex: 1,
         justifyContent: 'flex-end'
     },
+
     title: {
         fontFamily: commonStyles.fontFamily,
         fontSize: 50,
@@ -145,6 +156,7 @@ const style = StyleSheet.create({
         marginLeft: 20,
         marginBottom: 20,
     },
+
     subTitle: {
         fontFamily: commonStyles.fontFamily,
         fontSize: 20,
@@ -152,12 +164,14 @@ const style = StyleSheet.create({
         marginLeft: 20,
         marginBottom: 20,
     },
+
     iconBar: {
         flexDirection: 'row',
         marginHorizontal: 20,
         justifyContent: 'flex-end',
         marginTop: Platform.OS === 'ios' ? 40 : 10
     },
+    
     addButton: {
         position: 'absolute',
         right: 30,
